@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface ReporteRespuestaDTO {
   id_reporte: string;
@@ -31,7 +32,7 @@ export interface ReporteRespuestaDTO {
   styleUrls: ['./reportes-shell.component.css']
 })
 export class ReportesShellComponent {
-  private readonly baseUrl = 'http://localhost:8005/api/v1/reportes';
+  private readonly baseUrl = `${environment.apiMs5Url}/reportes`;
 
   public instruccionTexto = signal<string>('Generar reporte de situación táctica general para la Sala de Crisis con balance de agua, espuma y estado de hidrantes.');
   public vozTts = signal<string>('es-BO-MarceloNeural');

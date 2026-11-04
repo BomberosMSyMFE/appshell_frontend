@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { loadRemoteModule } from '@angular-architects/module-federation';
+import { environment } from '../environments/environment';
 import { CrisisFallbackComponent } from './components/crisis-fallback/crisis-fallback.component';
 import { FlotasWrapperComponent } from './components/flotas-wrapper/flotas-wrapper.component';
 import { InventarioWrapperComponent } from './components/inventario-wrapper/inventario-wrapper.component';
@@ -17,7 +18,7 @@ export const routes: Routes = [
       loadRemoteModule({
         type: 'script',
         remoteName: 'mfe1_comandos_frontend',
-        remoteEntry: 'http://localhost:4201/remoteEntry.js',
+        remoteEntry: environment.mfe1CrisisUrl,
         exposedModule: './Component'
       })
       .then(m => m.CrisisRoomComponent || m.AppComponent)
@@ -36,7 +37,18 @@ export const routes: Routes = [
   },
   {
     path: 'reportes',
-    component: ReportesShellComponent
+    loadComponent: () =>
+      loadRemoteModule({
+        type: 'script',
+        remoteName: 'mfe1_comandos_frontend',
+        remoteEntry: environment.mfe1CrisisUrl,
+        exposedModule: './Reportes'
+      })
+      .then(m => m.ReportesComponent)
+      .catch(err => {
+        console.warn('[AppShell] Remote mfe1_comandos_frontend (Reportes) no disponible. Montando fallback contingente:', err);
+        return ReportesShellComponent;
+      })
   },
   {
     path: '**',

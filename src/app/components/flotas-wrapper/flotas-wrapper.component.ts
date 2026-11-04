@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { loadRemoteModule } from '@angular-architects/module-federation';
+import { environment } from '../../../environments/environment';
 import { RemoteFallbackComponent } from '../remote-fallback/remote-fallback.component';
 
 @Component({
@@ -54,7 +55,7 @@ export class FlotasWrapperComponent implements OnInit {
       const module = await loadRemoteModule({
         type: 'script',
         remoteName: 'mfe2_flotas_frontend',
-        remoteEntry: 'http://localhost:4202/remoteEntry.js',
+        remoteEntry: environment.mfe2FlotasUrl,
         exposedModule: './VisorCartografico'
       });
       this.cargando = false;
