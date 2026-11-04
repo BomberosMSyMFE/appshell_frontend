@@ -1,0 +1,84 @@
+<div class="modal-backdrop">
+  <div class="modal-dialog">
+    <header class="modal-header">
+      <div class="modal-title-group">
+        <h2 class="modal-title">
+          <i class="bi bi-shield-lock-fill text-primary-fire"></i>
+          Autenticación Centralizada (SSO de Bomberos)
+        </h2>
+        <span class="font-tactical-mono text-muted text-xs">
+          ACCESO SEGURO CON COOKIES HTTPONLY &bull; INF512 UAGRM
+        </span>
+      </div>
+      <button class="modal-close-icon" [disabled]="enviando()" (click)="cerrar()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </header>
+
+    <div class="modal-body">
+      <!-- Banner de Alerta Roja ante Error (REGLA INVIOLABLE) -->
+      <div *ngIf="errorMensaje()" class="modal-alert-danger">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <span>{{ errorMensaje() }}</span>
+      </div>
+
+      <form (ngSubmit)="login()" class="tactical-form">
+        <div class="form-group">
+          <label class="form-label" for="loginEmail">
+            Correo Institucional: <span class="text-danger">*</span>
+          </label>
+          <input
+            id="loginEmail"
+            type="email"
+            class="input-tactical"
+            [class.input-error]="erroresCampos().email"
+            placeholder="ej. nataly@bomberos.gob.bo"
+            [ngModel]="email()"
+            (ngModelChange)="email.set($event)"
+            name="loginEmail"
+          />
+          <div *ngIf="erroresCampos().email" class="field-error-text">
+            <i class="bi bi-exclamation-circle-fill"></i> {{ erroresCampos().email }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="loginPassword">
+            Contraseña Operativa: <span class="text-danger">*</span>
+          </label>
+          <input
+            id="loginPassword"
+            type="password"
+            class="input-tactical"
+            [class.input-error]="erroresCampos().password"
+            placeholder="Ingrese su contraseña..."
+            [ngModel]="password()"
+            (ngModelChange)="password.set($event)"
+            name="loginPassword"
+          />
+          <div *ngIf="erroresCampos().password" class="field-error-text">
+            <i class="bi bi-exclamation-circle-fill"></i> {{ erroresCampos().password }}
+          </div>
+        </div>
+
+        <div class="demo-box">
+          <span class="demo-label">ACCESO RÁPIDO PARA DEFENSA:</span>
+          <button type="button" class="btn-fire-outline btn-sm" (click)="demoLoginNataly()">
+            <i class="bi bi-person-badge-fill text-primary-fire"></i> Cap. Nataly Martínez (Oficial de Guardia)
+          </button>
+        </div>
+
+        <div class="modal-footer-inside">
+          <button type="button" class="btn-fire-danger" [disabled]="enviando()" (click)="cerrar()">
+            <i class="bi bi-x-lg"></i> Cancelar
+          </button>
+
+          <button type="submit" class="btn-fire-primary" [disabled]="enviando()">
+            <span *ngIf="!enviando()"><i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión Táctica</span>
+            <span *ngIf="enviando()"><i class="bi bi-arrow-repeat spin-icon"></i> Verificando SSO...</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

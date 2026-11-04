@@ -1,0 +1,81 @@
+<header class="topbar-navbar">
+  <div class="navbar-brand-section">
+    <div class="brand-crest">
+      <i class="bi bi-shield-shaded crest-icon"></i>
+    </div>
+    <div class="brand-titles">
+      <span class="brand-title">CUERPO DE BOMBEROS</span>
+      <span class="brand-subtitle font-tactical-mono">SALA DE CRISIS &bull; HOST MAESTRO</span>
+    </div>
+  </div>
+
+  <!-- Navegación Central entre Microfrontends -->
+  <nav class="navbar-nav-links">
+    <a
+      routerLink="/crisis"
+      routerLinkActive="nav-link-active"
+      class="nav-link-item"
+    >
+      <i class="bi bi-broadcast-pin"></i> Sala de Crisis
+    </a>
+
+    <a
+      routerLink="/flotas"
+      routerLinkActive="nav-link-active"
+      class="nav-link-item"
+    >
+      <i class="bi bi-truck"></i> Flota y GIS
+    </a>
+
+    <a
+      routerLink="/inventario"
+      routerLinkActive="nav-link-active"
+      class="nav-link-item"
+    >
+      <i class="bi bi-box-seam"></i> Insumos y Bodegas
+    </a>
+
+    <a
+      routerLink="/reportes"
+      routerLinkActive="nav-link-active"
+      class="nav-link-item"
+    >
+      <i class="bi bi-cpu"></i> Reportes IA Multimodal
+    </a>
+  </nav>
+
+  <!-- Indicador del Bus Nativo de Eventos & Perfil SSO -->
+  <div class="navbar-actions">
+    <!-- Notificación Táctica de Despacho en Tiempo Real (Event Bus) -->
+    <div *ngIf="eventBus.ultimoDespacho()" class="event-bus-indicator font-tactical-mono">
+      <i class="bi bi-send-check-fill text-success"></i>
+      <span>{{ eventBus.ultimoDespacho()!.camionId }} DESPACHADO</span>
+    </div>
+
+    <!-- Píldora de Usuario SSO -->
+    <div *ngIf="authService.isAuthenticated()" class="user-pill">
+      <div class="user-meta">
+        <span class="user-name">
+          <i class="bi bi-person-badge"></i> {{ authService.currentUser()?.nombre }}
+        </span>
+        <span class="badge-fire badge-fire-neutral font-tactical-mono user-role">
+          {{ authService.currentUser()?.rol }}
+        </span>
+      </div>
+
+      <button
+        class="btn-logout"
+        title="Cerrar Sesión Táctica"
+        (click)="onLogoutClick()"
+      >
+        <i class="bi bi-box-arrow-right"></i>
+      </button>
+    </div>
+
+    <div *ngIf="!authService.isAuthenticated()">
+      <button class="btn-fire-primary btn-sm" (click)="onLoginClick()">
+        <i class="bi bi-box-arrow-in-right"></i> Ingresar SSO
+      </button>
+    </div>
+  </div>
+</header>
