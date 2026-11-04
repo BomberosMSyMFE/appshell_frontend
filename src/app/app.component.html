@@ -1,0 +1,15 @@
+<div class="app-shell-root">
+  <!-- Barra de Navegación Global Host Anfitrión -->
+  <app-navbar (abrirLogin)="modalLoginAbierto.set(true)"></app-navbar>
+
+  <!-- Contenedor Maestro para Montaje de Microfrontends Federados -->
+  <main class="app-shell-viewport">
+    <router-outlet></router-outlet>
+  </main>
+
+  <!-- Modal SSO Centralizado -->
+  <app-login-modal
+    *ngIf="modalLoginAbierto()"
+    (cerrado)="modalLoginAbierto.set(false)"
+  ></app-login-modal>
+</div>

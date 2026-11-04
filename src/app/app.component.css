@@ -1,0 +1,12 @@
+.app-shell-root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-app);
+}
+
+.app-shell-viewport {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}

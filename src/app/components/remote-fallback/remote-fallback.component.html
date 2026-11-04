@@ -1,0 +1,56 @@
+<div class="fallback-container">
+  <div class="fallback-card">
+    <div class="fallback-icon-wrapper">
+      <i class="bi bi-shield-exclamation"></i>
+    </div>
+
+    <div class="fallback-content">
+      <div class="badge-row">
+        <span class="badge-fire badge-fire-warning">
+          <i class="bi bi-hdd-network"></i> FUERA DE LÍNEA
+        </span>
+        <span class="badge-fire badge-fire-neutral font-tactical-mono">
+          PUERTO {{ port }} &bull; {{ framework }}
+        </span>
+      </div>
+
+      <h2 class="fallback-title">{{ remoteName }}</h2>
+
+      <p class="fallback-description">
+        El microfrontend remoto federado no está respondiendo en su puerto asignado o se encuentra temporalmente fuera de línea.
+        Gracias a la arquitectura desacoplada con <strong>Webpack Module Federation</strong> y <strong>Error Boundaries</strong>,
+        la plataforma principal <strong>App Shell</strong> continúa operando normalmente sin interrupciones.
+      </p>
+
+      <div class="technical-details font-tactical-mono">
+        <div class="detail-item">
+          <span class="detail-label">Responsable:</span>
+          <span class="detail-val">{{ responsable }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Punto de Enlace (Manifest):</span>
+          <span class="detail-val">http://localhost:{{ port }}/remoteEntry.js</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Estado de Contención:</span>
+          <span class="detail-val text-success">Aislamiento Exitoso (Fallo Contenido)</span>
+        </div>
+      </div>
+
+      <div class="fallback-actions">
+        <button class="btn-fire-primary" [disabled]="reintentando()" (click)="reintentarCarga()">
+          <span *ngIf="!reintentando()">
+            <i class="bi bi-arrow-clockwise"></i> Reintentar Conexión con el Remoto
+          </span>
+          <span *ngIf="reintentando()">
+            <i class="bi bi-arrow-repeat spin-icon"></i> Reconectando...
+          </span>
+        </button>
+
+        <a href="/crisis" class="btn-fire-outline">
+          <i class="bi bi-broadcast-pin"></i> Ir a Sala de Crisis
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
