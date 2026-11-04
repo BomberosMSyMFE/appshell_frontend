@@ -44,8 +44,7 @@ appshell_frontend/
 │           ├── login-modal/          # Modal SSO con validaciones rojas
 │           ├── remote-fallback/      # Error Boundary visual ante caídas de remotos
 │           ├── flotas-wrapper/       # Contenedor isla DOM para React 18 (Maikol)
-│           ├── inventario-wrapper/   # Contenedor isla DOM para Vue 3 (Jael)
-│           └── reportes-shell/       # Consola de reportes IA FastMCP (MS-05)
+│           └── inventario-wrapper/   # Contenedor isla DOM para Vue 3 (Jael)
 ```
 
 ---
@@ -96,23 +95,11 @@ export const routes: Routes = [
   },
   { path: 'flotas', component: FlotasWrapperComponent },
   { path: 'inventario', component: InventarioWrapperComponent },
-  {
-    path: 'reportes',
-    loadComponent: () =>
-      loadRemoteModule({
-        type: 'script',
-        remoteName: 'mfe1_comandos_frontend',
-        remoteEntry: environment.mfe1CrisisUrl,
-        exposedModule: './Reportes'
-      })
-      .then(m => m.ReportesComponent)
-      .catch(err => {
-        console.warn('[AppShell] Remote mfe1_comandos_frontend (Reportes) no disponible:', err);
-        return ReportesShellComponent; // Fallback contingente
-      })
-  }
+  { path: '**', redirectTo: 'crisis' }
 ];
 ```
+
+* **Nota de Arquitectura:** El App Shell **NO contiene lógica de MS-05 ni ruta separada de reportes**. Todo el módulo de Reportes Multimodales (Voice-to-Report) reside dentro de `mfe1_comandos_frontend` (Consola de Nataly), que es el único frontend que consume directamente a `ms5_ia_mcp_backend`. El Shell se mantiene 100% ligero y desacoplado.
 
 ---
 

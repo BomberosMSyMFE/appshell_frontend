@@ -1,6 +1,6 @@
 const { shareAll, withModuleFederationPlugin } = require('@angular-architects/module-federation/webpack');
 
-module.exports = withModuleFederationPlugin({
+const mfConfig = withModuleFederationPlugin({
   remotes: {
     mfe1_comandos_frontend: "http://localhost:4201/remoteEntry.js",
   },
@@ -9,3 +9,10 @@ module.exports = withModuleFederationPlugin({
     ...shareAll({ singleton: true, strictVersion: true, requiredVersion: 'auto' }),
   },
 });
+
+mfConfig.output = {
+  ...mfConfig.output,
+  scriptType: 'module',
+};
+
+module.exports = mfConfig;

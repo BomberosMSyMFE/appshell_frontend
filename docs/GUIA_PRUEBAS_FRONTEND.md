@@ -29,7 +29,7 @@
   2. Verificar que la URL cambia automáticamente a `http://localhost:4200/crisis`.
   3. Comprobar visualmente el encabezado:
      - Escudo de bomberos `<i class="bi bi-shield-shaded"></i>` con título **CUERPO DE BOMBEROS**.
-     - Enlaces centrales: `Sala de Crisis`, `Flota y GIS`, `Insumos y Bodegas`, `Reportes IA Multimodal`.
+     - Enlaces centrales: `Sala de Crisis`, `Flota y GIS`, `Insumos y Bodegas` (los 3 microfrontends federados de los integrantes del grupo).
      - Cero emojis visibles en toda la pantalla (cumplimiento del contrato UI/UX).
 
 ---
