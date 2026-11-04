@@ -13,7 +13,7 @@ import { AuthService } from '../../services/auth.service';
 export class LoginModalComponent {
   @Output() public cerrado = new EventEmitter<void>();
 
-  public email = signal<string>('nataly@bomberos.gob.bo');
+  public email = signal<string>('nataly.comandos@bomberos.gob.bo');
   public password = signal<string>('bomberos2026');
   public enviando = signal<boolean>(false);
   public errorMensaje = signal<string | null>(null);
@@ -65,7 +65,7 @@ export class LoginModalComponent {
   }
 
   public demoLoginNataly(): void {
-    this.email.set('nataly@bomberos.gob.bo');
+    this.email.set('nataly.comandos@bomberos.gob.bo');
     this.password.set('bomberos2026');
     this.login();
   }
