@@ -2,7 +2,7 @@ export interface User {
   id: string;
   email: string;
   nombre: string;
-  rol: 'COMANDANTE' | 'OFICIAL_GUARDIA' | 'MAQUINISTA' | 'RADIO_OPERADOR';
+  rol: 'OPERADOR' | 'BOMBERO' | 'ADMINISTRADOR';
   estacion: string;
   placa?: string;
   token?: string;

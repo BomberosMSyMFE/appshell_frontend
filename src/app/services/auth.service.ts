@@ -26,13 +26,13 @@ export class AuthService {
       if (stored) {
         this.currentUser.set(JSON.parse(stored));
       } else {
-        // Usuario oficial de guardia por defecto para la sesión táctica
+        // Operador táctico por defecto para la sesión en Sala de Crisis
         const defaultUser: User = {
           id: 'USR-NAT-01',
-          email: 'nataly@bomberos.gob.bo',
-          nombre: 'Cap. Nataly Martínez',
-          rol: 'OFICIAL_GUARDIA',
-          estacion: 'Estación Central 1 (Casco Viejo)'
+          email: 'nataly.comandos@bomberos.gob.bo',
+          nombre: 'Nataly Martínez',
+          rol: 'OPERADOR',
+          estacion: 'Estación Central - Santa Cruz'
         };
         this.currentUser.set(defaultUser);
         sessionStorage.setItem(this.storageKey, JSON.stringify(defaultUser));
@@ -45,8 +45,21 @@ export class AuthService {
   /**
    * Inicio de sesión SSO con propagación de cookies HttpOnly
    */
-  public login(email: string, password: string):Observable<User> {
+  public login(email: string, password: string): Observable<User> {
     this.isLoading.set(true);
+
+    if (environment.useMocks) {
+      const mockUser: User = {
+        id: 'USR-NAT-01',
+        email,
+        nombre: 'Nataly Martínez',
+        rol: 'OPERADOR',
+        estacion: 'Estación Central - Santa Cruz'
+      };
+      this.establecerUsuario(mockUser);
+      this.isLoading.set(false);
+      return of(mockUser);
+    }
 
     return this.http.post<LoginResponse>(
       `${this.baseUrl}/login`,
@@ -58,8 +71,8 @@ export class AuthService {
           id: 'USR-' + Math.floor(100 + Math.random() * 900),
           email,
           nombre: email.split('@')[0].toUpperCase(),
-          rol: 'OFICIAL_GUARDIA',
-          estacion: 'Estación Central 1'
+          rol: 'OPERADOR',
+          estacion: 'Estación Central - Santa Cruz'
         };
         this.establecerUsuario(user);
         this.isLoading.set(false);
@@ -70,13 +83,13 @@ export class AuthService {
         console.warn('[AuthService] Backend Auth no disponible o error HTTP:', err.status);
 
         // Si el backend no está disponible, permitir demo login con credenciales válidas
-        if (email === 'nataly@bomberos.gob.bo' || email === 'oficial@bomberos.gob.bo' || err.status === 0) {
+        if (email.includes('nataly') || email.includes('operador') || err.status === 0) {
           const mockUser: User = {
             id: 'USR-NAT-01',
             email,
-            nombre: 'Cap. Nataly Martínez',
-            rol: 'OFICIAL_GUARDIA',
-            estacion: 'Estación Central 1 (Casco Viejo)'
+            nombre: 'Nataly Martínez',
+            rol: 'OPERADOR',
+            estacion: 'Estación Central - Santa Cruz'
           };
           this.establecerUsuario(mockUser);
           return of(mockUser);
