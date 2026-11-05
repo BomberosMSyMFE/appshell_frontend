@@ -49,6 +49,7 @@ export class AuthService {
     this.isLoading.set(true);
 
     if (environment.useMocks) {
+      console.warn('[DEV-AUDIT AUTH] MODO MOCK ACTIVO: Autenticando con usuario sintético local.');
       const mockUser: User = {
         id: 'USR-NAT-01',
         email,
@@ -60,6 +61,8 @@ export class AuthService {
       this.isLoading.set(false);
       return of(mockUser);
     }
+
+    console.log('[DEV-AUDIT AUTH] LLAMANDO ENDPOINT REAL: POST ' + this.baseUrl + '/login');
 
     return this.http.post<LoginResponse>(
       `${this.baseUrl}/login`,
@@ -74,16 +77,21 @@ export class AuthService {
           rol: 'OPERADOR',
           estacion: 'Estación Central - Santa Cruz'
         };
+        console.log('[DEV-AUDIT AUTH] Sesion iniciada con exito en MS-01 real. Usuario: ' + user.email);
         this.establecerUsuario(user);
         this.isLoading.set(false);
         return user;
       }),
       catchError(err => {
         this.isLoading.set(false);
-        console.warn('[AuthService] Backend Auth no disponible o error HTTP:', err.status);
+        console.error('[DEV-AUDIT AUTH ERROR] Fallo HTTP ' + err.status + ' al autenticar en MS-01 real (' + this.baseUrl + '/login).');
 
         // Si el backend no está disponible, permitir demo login con credenciales válidas
         if (email.includes('nataly') || email.includes('operador') || err.status === 0) {
+          console.warn(
+            '%c[DEV-AUDIT CONTINGENCIA] Backend MS-01 no disponible. Activando sesión mock de emergencia para no congelar la defensa. (¡ADVERTENCIA: NO ES SESION REAL!)',
+            'background: #B91C1C; color: #FFF; font-weight: bold; padding: 4px;'
+          );
           const mockUser: User = {
             id: 'USR-NAT-01',
             email,
