@@ -3,7 +3,7 @@
 
 export const environment = {
   production: true,
-  useMocks: true,
+  useMocks: false,
   apiMs1Url: 'http://localhost:3000/api/v1',
   mfe1CrisisUrl: 'http://localhost:4201/remoteEntry.js',
   mfe2FlotasUrl: 'http://localhost:4202/remoteEntry.js',

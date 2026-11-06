@@ -26,19 +26,10 @@ export class AuthService {
       if (stored) {
         this.currentUser.set(JSON.parse(stored));
       } else {
-        // Operador táctico por defecto para la sesión en Sala de Crisis
-        const defaultUser: User = {
-          id: 'USR-NAT-01',
-          email: 'nataly.comandos@bomberos.gob.bo',
-          nombre: 'Nataly Martínez',
-          rol: 'OPERADOR',
-          estacion: 'Estación Central - Santa Cruz'
-        };
-        this.currentUser.set(defaultUser);
-        sessionStorage.setItem(this.storageKey, JSON.stringify(defaultUser));
+        this.currentUser.set(null);
       }
     } catch {
-      // Ignorar fallos de acceso a sessionStorage
+      this.currentUser.set(null);
     }
   }
 
@@ -48,14 +39,19 @@ export class AuthService {
   public login(email: string, password: string): Observable<User> {
     this.isLoading.set(true);
 
+    const isBomberoEmail = email.toLowerCase().includes('bombero');
+
     if (environment.useMocks) {
       console.warn('[DEV-AUDIT AUTH] MODO MOCK ACTIVO: Autenticando con usuario sintético local.');
       const mockUser: User = {
-        id: 'USR-NAT-01',
+        id: isBomberoEmail ? 'usr_bombero_01' : 'USR-NAT-01',
         email,
-        nombre: 'Nataly Martínez',
-        rol: 'OPERADOR',
-        estacion: 'Estación Central - Santa Cruz'
+        nombre: isBomberoEmail ? 'Sargento B-01 (Bombero Operativo)' : 'Nataly Martínez',
+        nombreCompleto: isBomberoEmail ? 'Sargento B-01 (Bombero Operativo)' : 'Nataly Martínez',
+        rol: isBomberoEmail ? 'BOMBERO' : 'OPERADOR',
+        estacion: 'Estación Central - Santa Cruz',
+        estacionBase: 'Estación Central - Santa Cruz',
+        telefonoMovil: isBomberoEmail ? '+591 70020001' : '+591 70012345'
       };
       this.establecerUsuario(mockUser);
       this.isLoading.set(false);
@@ -70,14 +66,27 @@ export class AuthService {
       { withCredentials: true }
     ).pipe(
       map(res => {
-        const user: User = res.user || {
-          id: 'USR-' + Math.floor(100 + Math.random() * 900),
+        const rawUser = res.usuario || res.user;
+        const user: User = rawUser ? {
+          id: rawUser.id,
+          email: rawUser.email || email,
+          nombre: rawUser.nombreCompleto || rawUser.nombre || email.split('@')[0].toUpperCase(),
+          nombreCompleto: rawUser.nombreCompleto || rawUser.nombre,
+          rol: rawUser.rol || (isBomberoEmail ? 'BOMBERO' : 'OPERADOR'),
+          estacion: rawUser.estacionBase || rawUser.estacion || 'Estación Central - Santa Cruz',
+          estacionBase: rawUser.estacionBase || rawUser.estacion,
+          telefonoMovil: rawUser.telefonoMovil || ''
+        } : {
+          id: isBomberoEmail ? 'usr_bombero_01' : ('USR-' + Math.floor(100 + Math.random() * 900)),
           email,
-          nombre: email.split('@')[0].toUpperCase(),
-          rol: 'OPERADOR',
-          estacion: 'Estación Central - Santa Cruz'
+          nombre: isBomberoEmail ? 'Sargento B-01 (Bombero Operativo)' : email.split('@')[0].toUpperCase(),
+          nombreCompleto: isBomberoEmail ? 'Sargento B-01 (Bombero Operativo)' : email.split('@')[0].toUpperCase(),
+          rol: isBomberoEmail ? 'BOMBERO' : 'OPERADOR',
+          estacion: 'Estación Central - Santa Cruz',
+          estacionBase: 'Estación Central - Santa Cruz',
+          telefonoMovil: isBomberoEmail ? '+591 70020001' : ''
         };
-        console.log('[DEV-AUDIT AUTH] Sesion iniciada con exito en MS-01 real. Usuario: ' + user.email);
+        console.log('[DEV-AUDIT AUTH] Sesion iniciada con exito en MS-01 real. Usuario: ' + user.email + ' (Rol: ' + user.rol + ')');
         this.establecerUsuario(user);
         this.isLoading.set(false);
         return user;
@@ -86,24 +95,31 @@ export class AuthService {
         this.isLoading.set(false);
         console.error('[DEV-AUDIT AUTH ERROR] Fallo HTTP ' + err.status + ' al autenticar en MS-01 real (' + this.baseUrl + '/login).');
 
-        // Si el backend no está disponible, permitir demo login con credenciales válidas
-        if (email.includes('nataly') || email.includes('operador') || err.status === 0) {
-          console.warn(
-            '%c[DEV-AUDIT CONTINGENCIA] Backend MS-01 no disponible. Activando sesión mock de emergencia para no congelar la defensa. (¡ADVERTENCIA: NO ES SESION REAL!)',
-            'background: #B91C1C; color: #FFF; font-weight: bold; padding: 4px;'
+        if (environment.useMocks) {
+          console.group(
+            '%c DEV-AUDIT AUTH %c Modo Mock Activo (' + this.baseUrl + '/login)',
+            'background: #D97706; color: #FFFFFF; font-weight: bold; font-size: 11px; padding: 2px 6px; border-radius: 3px;',
+            'color: #F59E0B; font-weight: bold; font-size: 11px;'
           );
+          console.warn('• Acción: Activando sesión mock local.');
+          console.groupEnd();
           const mockUser: User = {
-            id: 'USR-NAT-01',
+            id: isBomberoEmail ? 'usr_bombero_01' : 'USR-NAT-01',
             email,
-            nombre: 'Nataly Martínez',
-            rol: 'OPERADOR',
-            estacion: 'Estación Central - Santa Cruz'
+            nombre: isBomberoEmail ? 'Sargento B-01 (Bombero Operativo)' : 'Nataly Martínez',
+            nombreCompleto: isBomberoEmail ? 'Sargento B-01 (Bombero Operativo)' : 'Nataly Martínez',
+            rol: isBomberoEmail ? 'BOMBERO' : 'OPERADOR',
+            estacion: 'Estación Central - Santa Cruz',
+            estacionBase: 'Estación Central - Santa Cruz',
+            telefonoMovil: isBomberoEmail ? '+591 70020001' : '+591 70012345'
           };
           this.establecerUsuario(mockUser);
           return of(mockUser);
         }
 
-        const msg = err.error?.mensaje || err.error?.message || 'Credenciales inválidas o servicio de autenticación no disponible.';
+        const msg = err.status === 0
+          ? 'No se pudo conectar con el servidor de autenticación MS-01. Verifique que el servicio esté iniciado en el puerto 3000.'
+          : (err.error?.mensaje || err.error?.message || 'Credenciales inválidas. Verifique su correo y contraseña táctica.');
         return throwError(() => new Error(msg));
       })
     );
@@ -121,6 +137,9 @@ export class AuthService {
     this.currentUser.set(null);
     try {
       sessionStorage.removeItem(this.storageKey);
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('BOMBERO_AUTH_CHANGE', { detail: null }));
+      }
     } catch {}
   }
 
@@ -128,6 +147,9 @@ export class AuthService {
     this.currentUser.set(user);
     try {
       sessionStorage.setItem(this.storageKey, JSON.stringify(user));
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('BOMBERO_AUTH_CHANGE', { detail: user }));
+      }
     } catch {}
   }
 }
