@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { LoginModalComponent } from './components/login-modal/login-modal.component';
+import { AuthService } from './services/auth.service';
 import { environment } from '../environments/environment';
 
 @Component({
@@ -14,6 +15,8 @@ import { environment } from '../environments/environment';
 })
 export class AppComponent implements OnInit {
   public modalLoginAbierto = signal<boolean>(false);
+
+  constructor(public authService: AuthService) {}
 
   ngOnInit(): void {
     const modoOperacion = environment.useMocks

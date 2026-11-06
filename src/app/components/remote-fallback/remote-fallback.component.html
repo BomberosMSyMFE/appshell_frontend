@@ -1,46 +1,26 @@
 <div class="fallback-container">
   <div class="fallback-card">
     <div class="fallback-icon-wrapper">
-      <i class="bi bi-shield-exclamation"></i>
+      <i class="bi bi-hdd-network-fill"></i>
     </div>
 
     <div class="fallback-content">
       <div class="badge-row">
-        <span class="badge-fire badge-fire-warning">
-          <i class="bi bi-hdd-network"></i> FUERA DE LÍNEA
-        </span>
-        <span class="badge-fire badge-fire-neutral font-tactical-mono">
-          PUERTO {{ port }} &bull; {{ framework }}
+        <span class="badge-fire badge-fire-warning font-tactical-mono">
+          <i class="bi bi-exclamation-triangle-fill"></i> MÓDULO NO DISPONIBLE
         </span>
       </div>
 
       <h2 class="fallback-title">{{ remoteName }}</h2>
 
       <p class="fallback-description">
-        El microfrontend remoto federado no está respondiendo en su puerto asignado o se encuentra temporalmente fuera de línea.
-        Gracias a la arquitectura desacoplada con <strong>Webpack Module Federation</strong> y <strong>Error Boundaries</strong>,
-        la plataforma principal <strong>App Shell</strong> continúa operando normalmente sin interrupciones.
+        No se pudo establecer conexión con este módulo remoto en el puerto {{ port }}. Verifique que el servicio esté iniciado y en ejecución.
       </p>
-
-      <div class="technical-details font-tactical-mono">
-        <div class="detail-item">
-          <span class="detail-label">Responsable:</span>
-          <span class="detail-val">{{ responsable }}</span>
-        </div>
-        <div class="detail-item">
-          <span class="detail-label">Punto de Enlace (Manifest):</span>
-          <span class="detail-val">http://localhost:{{ port }}/remoteEntry.js</span>
-        </div>
-        <div class="detail-item">
-          <span class="detail-label">Estado de Contención:</span>
-          <span class="detail-val text-success">Aislamiento Exitoso (Fallo Contenido)</span>
-        </div>
-      </div>
 
       <div class="fallback-actions">
         <button class="btn-fire-primary" [disabled]="reintentando()" (click)="reintentarCarga()">
           <span *ngIf="!reintentando()">
-            <i class="bi bi-arrow-clockwise"></i> Reintentar Conexión con el Remoto
+            <i class="bi bi-arrow-clockwise"></i> Reintentar Conexión
           </span>
           <span *ngIf="reintentando()">
             <i class="bi bi-arrow-repeat spin-icon"></i> Reconectando...

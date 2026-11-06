@@ -15,8 +15,7 @@ export const routes: Routes = [
     path: 'crisis',
     loadComponent: () =>
       loadRemoteModule({
-        type: 'script',
-        remoteName: 'mfe1_comandos_frontend',
+        type: 'module',
         remoteEntry: environment.mfe1CrisisUrl,
         exposedModule: './Component'
       })

@@ -4,7 +4,24 @@
 
   <!-- Contenedor Maestro para Montaje de Microfrontends Federados -->
   <main class="app-shell-viewport">
-    <router-outlet></router-outlet>
+    <!-- Si el usuario NO ha iniciado sesión -->
+    <div *ngIf="!authService.isAuthenticated()" class="unauthenticated-view">
+      <div class="unauthenticated-card">
+        <div class="unauth-icon-wrapper">
+          <i class="bi bi-shield-lock-fill"></i>
+        </div>
+        <h2 class="unauth-title">Usted no está identificado</h2>
+        <p class="unauth-desc">
+          Por favor inicie sesión con sus credenciales institucionales para acceder a la Sala de Crisis y a los módulos tácticos de la plataforma.
+        </p>
+        <button class="btn-fire-primary btn-lg" (click)="modalLoginAbierto.set(true)">
+          <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión SSO
+        </button>
+      </div>
+    </div>
+
+    <!-- Si el usuario SÍ está autenticado, renderizar el microfrontend correspondiente -->
+    <router-outlet *ngIf="authService.isAuthenticated()"></router-outlet>
   </main>
 
   <!-- Modal SSO Centralizado -->
