@@ -62,10 +62,18 @@
         </div>
 
         <div class="demo-box">
-          <span class="demo-label">ACCESO RÁPIDO PARA DEFENSA:</span>
-          <button type="button" class="btn-fire-outline btn-sm" (click)="demoLoginNataly()">
-            <i class="bi bi-person-badge-fill text-primary-fire"></i> Nataly Martínez (Operador Central 119)
-          </button>
+          <span class="demo-label">ACCESOS RÁPIDOS PARA DEFENSA:</span>
+          <div class="demo-buttons">
+            <button type="button" class="btn-fire-outline btn-sm" (click)="demoLoginNataly()" title="Password: Comandos2026!">
+              <i class="bi bi-person-badge-fill text-primary-fire"></i> Nataly Martínez (Operador)
+            </button>
+            <button type="button" class="btn-fire-outline btn-sm" (click)="demoLoginBombero()" title="Password: Bombero2026!">
+              <i class="bi bi-shield-shaded text-primary-fire"></i> Sargento B-01 (Bombero)
+            </button>
+            <button type="button" class="btn-fire-outline btn-sm" (click)="demoLoginAdmin()" title="Password: AdminSeguro2026!">
+              <i class="bi bi-shield-lock-fill text-primary-fire"></i> Admin General
+            </button>
+          </div>
         </div>
 
         <div class="modal-footer-inside">

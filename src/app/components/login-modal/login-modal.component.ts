@@ -14,7 +14,7 @@ export class LoginModalComponent {
   @Output() public cerrado = new EventEmitter<void>();
 
   public email = signal<string>('nataly.comandos@bomberos.gob.bo');
-  public password = signal<string>('bomberos2026');
+  public password = signal<string>('Comandos2026!');
   public enviando = signal<boolean>(false);
   public errorMensaje = signal<string | null>(null);
   public erroresCampos = signal<{ email?: string; password?: string }>({});
@@ -66,7 +66,19 @@ export class LoginModalComponent {
 
   public demoLoginNataly(): void {
     this.email.set('nataly.comandos@bomberos.gob.bo');
-    this.password.set('bomberos2026');
+    this.password.set('Comandos2026!');
+    this.login();
+  }
+
+  public demoLoginBombero(): void {
+    this.email.set('bombero.b01@bomberos.gob.bo');
+    this.password.set('Bombero2026!');
+    this.login();
+  }
+
+  public demoLoginAdmin(): void {
+    this.email.set('admin@bomberos.gob.bo');
+    this.password.set('AdminSeguro2026!');
     this.login();
   }
 }
