@@ -1,9 +1,9 @@
 const { shareAll, withModuleFederationPlugin } = require('@angular-architects/module-federation/webpack');
 
 const mfConfig = withModuleFederationPlugin({
-  remotes: {
-    mfe1_comandos_frontend: "http://localhost:4201/remoteEntry.js",
-  },
+  // Remotos cargados de forma 100% dinámica en runtime mediante loadRemoteModule.
+  // Se deja 'remotes' vacío para evitar declaraciones estáticas redundantes.
+  remotes: {},
 
   shared: {
     ...shareAll({ singleton: true, strictVersion: true, requiredVersion: 'auto' }),
