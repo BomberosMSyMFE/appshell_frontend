@@ -50,3 +50,21 @@ input, select, textarea {
 ::-webkit-scrollbar-thumb:hover {
   background: #94A3B8;
 }
+
+/* Soporte Cartográfico Leaflet GIS para Microfrontends (MFE-02 Flotas / React 18) */
+.leaflet-container {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 500px !important;
+  background-color: #0A0E17 !important;
+  z-index: 1;
+}
+
+#isla-mapa-react {
+  height: calc(100vh - 120px) !important;
+  min-height: 600px !important;
+  width: 100% !important;
+  display: block !important;
+  position: relative !important;
+}
+
