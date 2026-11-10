@@ -74,6 +74,7 @@ import { RemoteFallbackComponent } from '../remote-fallback/remote-fallback.comp
         class="cabina-iframe"
         title="Terminal de Cabina Bombero PWA"
         allow="geolocation; camera; microphone"
+        (load)="onIframeLoad($event)"
       ></iframe>
     </div>
   `,
@@ -281,7 +282,9 @@ export class FlotasWrapperComponent implements OnInit, OnDestroy {
         const resp = await fetch(`${origin}/api/v1/incidentes/activos`).then(r => r.json());
         if (Array.isArray(resp)) {
           incidentesMapeados = resp.map(inc => ({
+            id: inc.id,
             incidenteId: inc.codigoRadial || inc.codigo || inc.id,
+            codigoRadial: inc.codigoRadial || inc.codigo || inc.id,
             titulo: inc.descripcion || inc.titulo || 'Emergencia Táctica',
             direccion: inc.ubicacion?.dir || inc.direccion || 'Santa Cruz',
             ubicacion: inc.ubicacion?.dir || inc.direccion || 'Santa Cruz',
@@ -300,6 +303,13 @@ export class FlotasWrapperComponent implements OnInit, OnDestroy {
       if (module && typeof module.mount === 'function') {
         const rootEl = document.getElementById('isla-mapa-react');
         if (rootEl) {
+          const notificarCambio = (incId: any, est: any, camId?: any) => {
+            console.log(`[FlotasWrapper -> Bus] Notificando cambio cross-MFE: ${incId} -> ${est} (Camión: ${camId})`);
+            window.dispatchEvent(new CustomEvent('BOMBEROS:ESTADO_INCIDENTE_CAMBIADO', {
+              detail: { incidenteId: incId, nuevoEstado: est, camionId: camId }
+            }));
+          };
+
           const propsEstables = {
             incidentes: incidentesMapeados,
             unidades: FlotasWrapperComponent.STABLE_EMPTY_UNIDADES,
@@ -310,7 +320,13 @@ export class FlotasWrapperComponent implements OnInit, OnDestroy {
             },
             onTrazarRuta: (camionId: string) => {
               console.log('[AppShell] Trazar ruta óptima para camión:', camionId);
-            }
+            },
+            onIncidenteCambio: notificarCambio,
+            onEstadoIncidente: notificarCambio,
+            onCambioEstado: notificarCambio,
+            onIncidenteControlado: (incId: any, camId?: any) => notificarCambio(incId, 'CONTROLADO', camId),
+            onIncidenteExtinguido: (incId: any, camId?: any) => notificarCambio(incId, 'EXTINGUIDO', camId),
+            onEventoIncidente: notificarCambio,
           };
 
           const res = module.mount(rootEl, propsEstables);
@@ -346,6 +362,52 @@ export class FlotasWrapperComponent implements OnInit, OnDestroy {
     const rootEl = document.getElementById('isla-mapa-react');
     if (rootEl) {
       rootEl.innerHTML = '';
+    }
+  }
+
+  /**
+   * Conecta un puente bidireccional entre la Terminal de Cabina PWA (iframe) y el AppShell.
+   * Al estar en el mismo origen (/mfe2/ bajo proxy en el mismo dominio), captura todos los
+   * eventos tácticos de los botones ('Llegada a Escena', 'Fuego Controlado', 'Extinguido')
+   * y los re-despacha a nivel de window principal para sincronizarlos de inmediato con MS-01.
+   */
+  public onIframeLoad(event: Event): void {
+    try {
+      const iframe = event.target as HTMLIFrameElement;
+      const iframeWin = iframe?.contentWindow;
+      if (!iframeWin) return;
+
+      console.info('[FlotasWrapper] Puente táctico conectado con Terminal de Cabina PWA (iframe)');
+
+      const reenviarEvento = (tipoEvento: string, detail: any) => {
+        console.info(`[FlotasWrapper Puente] Evento capturado en iframe: ${tipoEvento}`, detail);
+        window.dispatchEvent(new CustomEvent(tipoEvento, { detail }));
+      };
+
+      iframeWin.addEventListener('BOMBEROS:ESTADO_INCIDENTE_CAMBIADO', (e: any) => {
+        reenviarEvento('BOMBEROS:ESTADO_INCIDENTE_CAMBIADO', e.detail);
+      });
+      iframeWin.addEventListener('BOMBEROS:INCIDENTE_CONTROLADO', (e: any) => {
+        reenviarEvento('BOMBEROS:INCIDENTE_CONTROLADO', e.detail);
+      });
+      iframeWin.addEventListener('BOMBEROS:ESTADO_CAMION_CAMBIADO', (e: any) => {
+        reenviarEvento('BOMBEROS:ESTADO_CAMION_CAMBIADO', e.detail);
+      });
+      iframeWin.addEventListener('BOMBEROS:UNIDAD_LIBERADA', (e: any) => {
+        reenviarEvento('BOMBEROS:UNIDAD_LIBERADA', e.detail);
+      });
+
+      // Propagar logs de consola desde el iframe hacia la ventana principal
+      const winAny = iframeWin as any;
+      if (winAny && winAny.console) {
+        const iframeOriginalLog = winAny.console.log;
+        winAny.console.log = (...args: any[]) => {
+          try { iframeOriginalLog.apply(winAny.console, args); } catch {}
+          try { window.console.log(...args); } catch {}
+        };
+      }
+    } catch (err) {
+      console.warn('[FlotasWrapper] Error al adjuntar puente táctico al iframe:', err);
     }
   }
 
