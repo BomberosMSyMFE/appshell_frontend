@@ -37,4 +37,9 @@ export interface BomberoDispatchEventDetail {
   camionId: string;
   materiales: string[];
   timestamp: string;
+  direccion?: string;
+  ubicacion?: string;
+  cuadrante?: string;
+  latitud?: number;
+  longitud?: number;
 }

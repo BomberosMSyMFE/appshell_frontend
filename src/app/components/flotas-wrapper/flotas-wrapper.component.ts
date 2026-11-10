@@ -273,11 +273,35 @@ export class FlotasWrapperComponent implements OnInit, OnDestroy {
       this.cargando = false;
       this.cdr.detectChanges();
 
+      // Consultar en vivo los incidentes activos desde MS-01 para alimentar el mapa de MFE-02 con todos los siniestros reales y sus ubicaciones
+      const isDuckDns = window.location.hostname.includes('duckdns.org') || window.location.hostname.includes('bomberos');
+      const origin = isDuckDns ? 'https://bomberos-uagrm-scz.duckdns.org' : '';
+      let incidentesMapeados: any[] = [];
+      try {
+        const resp = await fetch(`${origin}/api/v1/incidentes/activos`).then(r => r.json());
+        if (Array.isArray(resp)) {
+          incidentesMapeados = resp.map(inc => ({
+            incidenteId: inc.codigoRadial || inc.codigo || inc.id,
+            titulo: inc.descripcion || inc.titulo || 'Emergencia Táctica',
+            direccion: inc.ubicacion?.dir || inc.direccion || 'Santa Cruz',
+            ubicacion: inc.ubicacion?.dir || inc.direccion || 'Santa Cruz',
+            tipoFuego: inc.tipoIncidente || inc.tipo || 'ESTRUCTURAL',
+            latitud: inc.ubicacion?.lat || inc.latitud || -17.7833,
+            longitud: inc.ubicacion?.lng || inc.longitud || -63.1821,
+            prioridad: inc.severidad === 'CRITICA' || inc.nivelRiesgo === 'CRITICO' ? 'CODIGO_ROJO' : 'CODIGO_AMARILLO',
+            camionSugeridoId: inc.camionAsignado || null,
+          }));
+        }
+      } catch (e) {
+        console.warn('[FlotasWrapper] No se pudo obtener lista de incidentes activos:', e);
+      }
+
       // Montar componente React pasando referencias de datos estables para evitar el bucle infinito en MFE2
       if (module && typeof module.mount === 'function') {
         const rootEl = document.getElementById('isla-mapa-react');
         if (rootEl) {
           const propsEstables = {
+            incidentes: incidentesMapeados,
             unidades: FlotasWrapperComponent.STABLE_EMPTY_UNIDADES,
             hidrantes: FlotasWrapperComponent.STABLE_EMPTY_HIDRANTES,
             hotspots: FlotasWrapperComponent.STABLE_EMPTY_HOTSPOTS,
