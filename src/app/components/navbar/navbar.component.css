@@ -158,3 +158,49 @@
   padding: 6px 12px;
   font-size: 12px;
 }
+
+@media (max-width: 768px) {
+  .topbar-navbar {
+    height: auto;
+    padding: 8px 12px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .brand-titles .brand-subtitle {
+    display: none;
+  }
+  .brand-titles .brand-title {
+    font-size: 12px;
+  }
+  .navbar-nav-links {
+    order: 3;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+    justify-content: space-between;
+  }
+  .nav-link-item {
+    font-size: 11px;
+    padding: 6px 8px;
+    white-space: nowrap;
+  }
+  .navbar-actions {
+    gap: 8px;
+  }
+  .event-bus-indicator {
+    font-size: 9.5px;
+    padding: 4px 8px;
+  }
+  .user-pill {
+    padding: 4px 8px;
+    gap: 6px;
+  }
+  .user-name {
+    font-size: 11px;
+    max-width: 90px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}

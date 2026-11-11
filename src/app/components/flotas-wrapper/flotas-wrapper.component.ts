@@ -194,6 +194,47 @@ import { RemoteFallbackComponent } from '../remote-fallback/remote-fallback.comp
       border: none;
       display: block;
     }
+    @media (max-width: 768px) {
+      .flotas-subnav {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+        padding: 8px 12px;
+      }
+      .subnav-left {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+        width: 100%;
+      }
+      .subnav-title {
+        font-size: 11px;
+      }
+      .btn-group-views {
+        width: 100%;
+        display: flex;
+      }
+      .btn-tab {
+        flex: 1;
+        justify-content: center;
+        padding: 8px 10px;
+        font-size: 11px;
+      }
+      .subnav-right {
+        justify-content: flex-end;
+      }
+      .badge-node {
+        font-size: 9.5px;
+        padding: 2px 6px;
+      }
+      .react-container {
+        height: calc(100vh - 140px);
+        min-height: 420px;
+      }
+      .cabina-container {
+        height: calc(100vh - 140px);
+      }
+    }
   `]
 })
 export class FlotasWrapperComponent implements OnInit, OnDestroy {

@@ -106,15 +106,48 @@ export class AppComponent implements OnInit, OnDestroy {
         if (Array.isArray(activos)) {
           const norm = (s: string) => (s || '').toUpperCase().replace(/^CAM-/, '').trim();
           const targetCam = norm(camionId || idCandidato);
-          const match = activos.find((inc: any) =>
-            inc.id === idCandidato ||
-            inc.codigoRadial === idCandidato ||
-            inc.codigo === idCandidato ||
-            (targetCam && norm(inc.camionAsignado) === targetCam)
+          const idUpper = idCandidato.toUpperCase();
+
+          // Prioridad 1: Búsqueda exacta por ID (UUID) o Código Radial (case-insensitive)
+          let match = activos.find((inc: any) =>
+            (inc.id && inc.id.toUpperCase() === idUpper) ||
+            (inc.codigoRadial && inc.codigoRadial.toUpperCase() === idUpper) ||
+            (inc.codigo && inc.codigo.toUpperCase() === idUpper)
           );
+
+          // Prioridad 2: Si NO hubo coincidencia exacta y se cuenta con camión asignado
+          if (!match && targetCam) {
+            // Filtrar incidentes de este camión en estado activo (DESPACHADO o EN_COMBATE)
+            const candidatosCamion = activos.filter((inc: any) => {
+              const cam = norm(inc.camionAsignado);
+              const st = (inc.estado || '').toUpperCase();
+              return cam === targetCam && (st === 'DESPACHADO' || st === 'EN_COMBATE');
+            });
+
+            if (candidatosCamion.length > 0) {
+              candidatosCamion.sort((a: any, b: any) => {
+                const tA = new Date(a.updatedAt || a.createdAt || 0).getTime();
+                const tB = new Date(b.updatedAt || b.createdAt || 0).getTime();
+                return tB - tA;
+              });
+              match = candidatosCamion[0];
+            } else {
+              // Si no hay en combate/despacho, tomar el más reciente del camión
+              const todosCamion = activos.filter((inc: any) => norm(inc.camionAsignado) === targetCam);
+              if (todosCamion.length > 0) {
+                todosCamion.sort((a: any, b: any) => {
+                  const tA = new Date(a.updatedAt || a.createdAt || 0).getTime();
+                  const tB = new Date(b.updatedAt || b.createdAt || 0).getTime();
+                  return tB - tA;
+                });
+                match = todosCamion[0];
+              }
+            }
+          }
+
           if (match) {
             idParaPatch = match.id || match.codigoRadial || idCandidato;
-            console.info(`[AppShell Cross-MFE] Siniestro resuelto para unidad '${targetCam}': ${match.codigoRadial} (${match.id})`);
+            console.info(`[AppShell Cross-MFE] Siniestro resuelto: ${match.codigoRadial} (${match.id}) para target '${idCandidato}' / camión '${targetCam}'`);
           }
         }
       }
@@ -160,7 +193,7 @@ export class AppComponent implements OnInit, OnDestroy {
     // A. Escucha directa de eventos DOM CustomEvent en window
     const onEstadoIncidente = (e: any) => {
       const d = e.detail || {};
-      const id = d.incidenteId || d.camionId;
+      const id = d.incidenteId || d.codigoRadial || d.id || d.camionId;
       const st = d.nuevoEstado || d.estado;
       if (id && st) {
         this.sincronizarEstadoConMs01(id, st, d.camionId);
@@ -171,7 +204,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
     const onIncidenteControlado = (e: any) => {
       const d = e.detail || {};
-      const id = d.incidenteId || d.camionId;
+      const id = d.incidenteId || d.codigoRadial || d.id || d.camionId;
       if (id) {
         this.sincronizarEstadoConMs01(id, 'CONTROLADO', d.camionId);
       }
@@ -205,10 +238,17 @@ export class AppComponent implements OnInit, OnDestroy {
       try {
         const data = event.data;
         if (data && typeof data === 'object') {
-          if (data.type === 'BOMBEROS:ESTADO_INCIDENTE_CAMBIADO' || data.event === 'BOMBEROS:ESTADO_INCIDENTE_CAMBIADO') {
+          if (
+            data.type === 'BOMBEROS:ESTADO_INCIDENTE_CAMBIADO' ||
+            data.event === 'BOMBEROS:ESTADO_INCIDENTE_CAMBIADO' ||
+            data.type === 'BOMBEROS:INCIDENTE_CONTROLADO' ||
+            data.event === 'BOMBEROS:INCIDENTE_CONTROLADO'
+          ) {
             const d = data.detail || data.payload || data;
-            const id = d.incidenteId || d.camionId;
-            const st = d.nuevoEstado || d.estado;
+            const id = d.incidenteId || d.codigoRadial || d.id || d.camionId;
+            const st = (data.type === 'BOMBEROS:INCIDENTE_CONTROLADO' || data.event === 'BOMBEROS:INCIDENTE_CONTROLADO')
+              ? 'CONTROLADO'
+              : (d.nuevoEstado || d.estado);
             if (id && st) this.sincronizarEstadoConMs01(id, st, d.camionId);
           } else if (data.type === 'BOMBEROS:ESTADO_CAMION_CAMBIADO' || data.event === 'BOMBEROS:ESTADO_CAMION_CAMBIADO') {
             const d = data.detail || data.payload || data;
